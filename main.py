@@ -1,9 +1,12 @@
 from telegram.ext import Updater, CommandHandler, ConversationHandler, MessageHandler, Filters
 import logging
 from commands import *
+import json
 
 def main():
-    updater = Updater(token='1861413013:AAH6At1meqljRCOBsHbhAXJ8-Iuyfiv_Q6o')
+    with open('token.json','r') as f:
+        telegram_token = json.load(f)["Telegram"]['token']
+    updater = Updater(token=telegram_token)
     dp = updater.dispatcher 
     logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
                      level=logging.INFO)
