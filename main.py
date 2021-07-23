@@ -13,11 +13,7 @@ def main():
 
     # Add handlers for allowed commands
     dp.add_handler(CommandHandler('start',start))
-    # dp.add_handler(CommandHandler('bop',bop))
-    # dp.add_handler(CommandHandler('sorry', say_sorry))
-
-    # echo_handler = MessageHandler(Filters.text & (~Filters.command), echo)
-    # dp.add_handler(CommandHandler('echo', echo))
+    dp.add_handler(CommandHandler('bop',bop))
 
     create_events_request_handler = ConversationHandler(
         entry_points=[CommandHandler("create_event", create_event)],

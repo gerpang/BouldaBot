@@ -15,17 +15,11 @@ def start(update: Update, context: CallbackContext):
                            # ,reply_markup=reply_markup
     )
 
-# def bop(update, context):
-#     contents = requests.get('https://random.dog/woof.json').json()    
-#     bop_pic = contents['url']
-#     chat_id = update.effective_chat.id
-#     context.bot.send_photo(chat_id=chat_id, photo=bop_pic)
-
-# def say_sorry(update, context):
-#     context.bot.send_message(chat_id=update.effective_chat.id, text="I'm sorry for lying on your bed with my uncleaned hair :(")
-
-# def echo(update, context):
-#     context.bot.send_message(chat_id=update.effective_chat.id, text=update.message.text[6:])
+def bop(update: Update, context: CallbackContext):
+    contents = requests.get('https://random.dog/woof.json').json()    
+    bop_pic = contents['url']
+    chat_id = update.effective_chat.id
+    context.bot.send_photo(chat_id=chat_id, photo=bop_pic)
 
 def unknown(update: Update, context: CallbackContext):
     context.bot.send_message(chat_id=update.effective_chat.id, text="Sorry, I didn't understand that command.")
