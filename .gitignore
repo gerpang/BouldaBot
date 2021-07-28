@@ -144,3 +144,5 @@ cython_debug/
 mem.json
 credentials.json
 token.json
+*.sqlite
+.vscode
