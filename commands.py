@@ -17,17 +17,18 @@ import datetime
 from dbhelper import db
 
 ## State definitions
-# Top level Conversation
-SELECTING_ACTION, CREATE, LIST, EDIT = map(chr, range(4))
-# 2nd level Conversation
-SELECTING_EVENT, SELECTING_FEATURE = map(chr, range(4, 6))
-# # 3rd level Conversation
-# SELECTING_SOMETHING_ELSE = map(chr, range(8))
-# Meta states
-STOPPING, SHOWING, SHOWING_FEATURES = map(chr, range(6, 9))
 END = ConversationHandler.END
-# Other constants
 (
+    SELECTING_ACTION,
+    CREATE,
+    LIST,
+    EDIT,
+    DELETE,
+    SELECTING_EVENT,
+    SELECTING_FEATURE,
+    STOPPING,
+    SHOWING,
+    SHOWING_FEATURES,
     EVENT_ID,
     EVENT_NAME,
     EVENT_DATE,
@@ -39,7 +40,7 @@ END = ConversationHandler.END
     FEATURES,
     CURRENT_FEATURE,
     CURRENT_LEVEL,
-) = map(chr, range(9, 20))
+) = map(chr, range(21))
 
 
 # Helper
@@ -116,33 +117,29 @@ def unknown(update: Update, context: CallbackContext):
 ## Events
 
 
-def create_event(update: Update, context: CallbackContext):
-    chat_id = update.effective_chat.id
+def seek_event_info(update: Update, context: CallbackContext):
+    # Prompt user for event info
     user = update.effective_user.username
 
-    context.bot.send_message(
-        chat_id=chat_id,
-        text="Hi {}, please provide the name, date, time, attendees, and venue of the event.".format(
-            user
-        ),
+    text = "Hi {}, please provide the name, date, time, attendees, and venue of the event.".format(
+        user
     )
+    update.callback_query.answer()
+    update.callback_query.edit_message_text(text=text)
     return CREATE
 
 
-def create_event_gs(update: Update, context: CallbackContext):
-    chat_id = update.effective_chat.id
+def create_event(update: Update, context: CallbackContext):
     user = update.effective_user.username
     message = update.message.text
 
     event_details = [m.strip() for m in message.split(",")]
     db.add_event(event_details, user)
 
-    context.bot.send_message(
-        chat_id=chat_id, text="Thanks {}. Your event has been created.".format(user)
-    )
+    text = "Thanks {}. Your event has been created.".format(user)
+    update.callback_query.answer()
+    update.callback_query.edit_message_text(text=text)
     return ConversationHandler.END
-    # context.bot.send_message(chat_id=chat_id, text="Sorry, didn't catch that. Did you mean to /create_event?")
-    # return ConversationHandler
 
 
 def list_events(update: Update, context: CallbackContext):
@@ -190,10 +187,15 @@ def get_event(update: Update, context: CallbackContext):
                 text="Edit Event", callback_data=str(EDIT) + str(selected_event)
             ),
             InlineKeyboardButton(
+                text="Delete Event", callback_data=str(DELETE) + str(selected_event)
+            ),
+        ],
+        [
+            InlineKeyboardButton(
                 text="Back to All Events", callback_data=str(SELECTING_EVENT)
             ),
             InlineKeyboardButton(text="Exit", callback_data=str(END)),
-        ]
+        ],
     ]
     keyboard = InlineKeyboardMarkup(buttons)
     update.callback_query.answer()
@@ -269,12 +271,16 @@ def update_event(update: Update, context: CallbackContext):
     return LIST  # get_event(update, context)
 
 
+def delete_event(update: Update, context: CallbackContext):
+    user = update.effective_user.username
+    event_id = update.callback_query.data.replace(str(DELETE), "")
+    db.delete_event(event_id, user)
+    update.callback_query.answer()
+    update.callback_query.edit_message_text("Ok, deleted the event.")
+    return SHOWING
+
+
 def echo(update: Update, context: CallbackContext):
     stmt = update.message.text
-    print("HEREEEEEEEEE")
-    print(stmt)
-
-    return stop
-
-
-# text = "Updating {} to {}. Please confirm." #Yes/No buttons.
+    print(stmt[6:])
+    return stop(update, context)

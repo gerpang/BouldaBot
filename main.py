@@ -28,10 +28,10 @@ def main():
 
     create_events_request_handler = ConversationHandler(
         entry_points=[
-            CallbackQueryHandler(create_event, pattern="^" + str(CREATE) + "$")
+            CallbackQueryHandler(seek_event_info, pattern="^" + str(CREATE) + "$")
         ],
         states={
-            CREATE: [MessageHandler(Filters.text & (~Filters.command), create_event_gs)]
+            CREATE: [MessageHandler(Filters.text & (~Filters.command), create_event)]
         },
         fallbacks=[CommandHandler("stop", stop)],
     )
@@ -54,6 +54,11 @@ def main():
             ],
             SHOWING_FEATURES: [
                 CallbackQueryHandler(get_event_features, pattern="^" + str(EDIT)),
+                CallbackQueryHandler(delete_event, pattern="^" + str(DELETE)),
+                CallbackQueryHandler(
+                    list_events, pattern="^" + str(SELECTING_EVENT) + "$"
+                ),
+                CallbackQueryHandler(end, pattern="^" + str(END) + "$"),
             ],
             SELECTING_FEATURE: [
                 CallbackQueryHandler(get_feature_input, pattern="^" + str(EDIT)),

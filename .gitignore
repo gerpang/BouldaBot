@@ -146,3 +146,4 @@ credentials.json
 token.json
 *.sqlite
 .vscode
+*.sqbpro
