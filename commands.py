@@ -1,5 +1,4 @@
 import csv
-from nestedconversationbot import TYPING
 import requests
 import json
 from telegram import (
@@ -28,6 +27,7 @@ END = ConversationHandler.END
     SELECTING_FEATURE,
     STOPPING,
     SHOWING,
+    TYPING,
     SHOWING_FEATURES,
     EVENT_ID,
     EVENT_NAME,
@@ -40,7 +40,7 @@ END = ConversationHandler.END
     FEATURES,
     CURRENT_FEATURE,
     CURRENT_LEVEL,
-) = map(chr, range(21))
+) = map(chr, range(22))
 
 
 # Helper
@@ -137,9 +137,8 @@ def create_event(update: Update, context: CallbackContext):
     db.add_event(event_details, user)
 
     text = "Thanks {}. Your event has been created.".format(user)
-    update.callback_query.answer()
-    update.callback_query.edit_message_text(text=text)
-    return ConversationHandler.END
+    update.message.reply_text(text=text)
+    return get_event(update, context)  # ConversationHandler.END
 
 
 def list_events(update: Update, context: CallbackContext):
@@ -277,7 +276,7 @@ def delete_event(update: Update, context: CallbackContext):
     db.delete_event(event_id, user)
     update.callback_query.answer()
     update.callback_query.edit_message_text("Ok, deleted the event.")
-    return SHOWING
+    return list_events(update, context)
 
 
 def echo(update: Update, context: CallbackContext):
